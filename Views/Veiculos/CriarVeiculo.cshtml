@@ -1,0 +1,35 @@
+﻿@model DriveNow.MVC.Models.VeiculoView
+
+<h1>Criar Veículo</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CriarVeiculo" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Modelo" class="form-label"></label>
+                <input asp-for="Modelo" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Placa" class="form-label"></label>
+                <input asp-for="Placa" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="ValorDiaria" class="form-label"></label>
+                <input asp-for="ValorDiaria" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <select asp-for="AgenciaId">
+                    @foreach (var a in ViewBag.Agencias)
+                    {
+                        <option value="@a.Id">@a.Nome</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        </form>
+    </div>
+</div>

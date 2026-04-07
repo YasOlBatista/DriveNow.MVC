@@ -1,0 +1,66 @@
+﻿@using DriveNow.MVC.Models
+@model IEnumerable<VeiculoView>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="fw-medium">Lista de Veículos</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="CriarVeiculo">Criar +</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Modelo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Placa)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorDiaria)
+            </th>
+            
+            <th>
+                Nome do Veículo
+            </th>
+
+            <th>Agência</th>
+
+            <th>Ações</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.Modelo
+                </td>
+                <td>
+                    @item.Placa
+                </td>
+                <td>
+                    @item.ValorDiaria
+                </td>
+                <td>
+                    @item.Agencia
+                </td>
+                <td>
+                    <a href="/Veiculos/EditarVeiculo/@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="/Veiculos/DeletarVeiculo/@item.Id" class="btn btn-sm btn-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
