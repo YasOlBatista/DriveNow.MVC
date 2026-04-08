@@ -1,0 +1,66 @@
+﻿@model IEnumerable<DriveNow.MVC.Models.LocacaoView>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="fw-medium">Lista de Consultas</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="CriarLocacao">Criar +</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ClienteId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VeiculoId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DataRetirada)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DataDevolucao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ValorTotal)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.ClienteId
+                </td>
+                <td>
+                    @item.VeiculoId
+                </td>
+                <td>
+                    @item.DataRetirada
+                </td>
+                <td>
+                    @item.DataDevolucao
+                </td>
+                <td>
+                    @item.ValorTotal
+                </td>
+
+                <td>
+                    <a href="/Locacoes/EditarLocacao/@item.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a href="/Locacoes/DeletarLocacao/@item.Id" class="btn btn-sm btn-danger">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

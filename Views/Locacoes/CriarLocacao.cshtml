@@ -1,0 +1,51 @@
+﻿@model DriveNow.MVC.Models.LocacaoView
+
+<h1>Criar Consulta</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CriarLocacao" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="ClienteId" class="form-label">Cliente</label>
+                <select asp-for="ClienteId" class="form-control">
+                    @foreach (var p in ViewBag.Clientes)
+                    {
+                        <option value="@p.Id">@p.Nome</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VeiculoId" class="form-label">Veículo</label>
+                <select asp-for="VeiculoId" class="form-control">
+                    @foreach (var v in ViewBag.Veiculos)
+                    {
+                        @if (v.IsAvailable)
+                        {
+                            <option value="@v.Id">@v.Modelo</option>
+                        }
+                        else
+                        {
+                            <option value="@v.Id" disabled>@v.Modelo</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DataRetirada" class="form-label"></label>
+                <input asp-for="DataRetirada" type="datetime-local" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="DataDevolucao" class="form-label"></label>
+                <input asp-for="DataDevolucao" type="datetime-local" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+﻿@model DriveNow.MVC.Models.VeiculoView
+
+<h1>Deletar Veículo</h1>
+
+<h4 class="text-danger">Tem certeza que deseja deletar o veículo?</h4>
+<hr />
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Modelo</dt>
+        <dd class="col-sm-10">@Model.Modelo</dd>
+
+        <dt class="col-sm-2">Placa</dt>
+        <dd class="col-sm-10">@Model.Placa</dd>
+
+        <dt class="col-sm-2">Valor Diária</dt>
+        <dd class="col-sm-10">@Model.ValorDiaria</dd>
+
+        <dt class="col-sm-2">Agência</dt>
+        <dd class="col-sm-10">@Model.NomeAgencia</dd>
+    </dl>
+
+    <form asp-action="DeletarVeiculoConfirmado" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Deletar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

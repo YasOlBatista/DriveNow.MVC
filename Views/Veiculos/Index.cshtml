@@ -25,10 +25,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.ValorDiaria)
             </th>
-            
-            <th>
-                Nome do Veículo
-            </th>
 
             <th>Agência</th>
 
@@ -53,7 +49,7 @@
                     @item.ValorDiaria
                 </td>
                 <td>
-                    @item.Agencia
+                    @item.AgenciaId
                 </td>
                 <td>
                     <a href="/Veiculos/EditarVeiculo/@item.Id" class="btn btn-sm btn-warning">Editar</a>
@@ -63,4 +59,5 @@
         }
     </tbody>
 </table>
+
 

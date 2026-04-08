@@ -17,7 +17,7 @@ namespace DriveNow.MVC.Models
 
         [Required(ErrorMessage = "Agência é obrigatória.")]
         public int AgenciaId { get; set; }
-        public string? Agencia { get; set; }
+        public string? NomeAgencia { get; set; }
 
     }
 }

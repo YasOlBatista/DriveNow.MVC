@@ -12,13 +12,13 @@ namespace DriveNow.MVC.Controllers
 
         public ClientesController(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClientFactory.CreateClient("DriveNow.API");
+            _httpClient = httpClientFactory.CreateClient("DriveNowAPI");
         }
 
 
         public async Task<IActionResult> Index()
         {
-            var response = await _httpClient.GetAsync("https://localhost:7224/api/Clientes");
+            var response = await _httpClient.GetAsync("api/clientes");
 
             if (response.IsSuccessStatusCode)
             {

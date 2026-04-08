@@ -1,0 +1,54 @@
+﻿@model DriveNow.MVC.Models.AgenciaView
+
+<h1>Editar Agência</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditarAgencia" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="NomeFantasia" class="form-label"></label>
+                <input asp-for="NomeFantasia" class="form-control" />
+                <span asp-validation-for="NomeFantasia" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Cep" class="form-label"></label>
+                <input asp-for="Cep" class="form-control" />
+                <span asp-validation-for="Cep" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Logradouro" class="form-label"></label>
+                <input asp-for="Logradouro" class="form-control" />
+                <span asp-validation-for="Logradouro" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Bairro" class="form-label"></label>
+                <input asp-for="Bairro" class="form-control" />
+                <span asp-validation-for="Bairro" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Localidade" class="form-label"></label>
+                <input asp-for="Localidade" class="form-control" />
+                <span asp-validation-for="Localidade" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Uf" class="form-label"></label>
+                <input asp-for="Uf" class="form-control" />
+                <span asp-validation-for="Uf" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Atualizar</button>
+            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+﻿@model DriveNow.MVC.Models.LocacaoView
+
+<h1>Editar Locação</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditarLocacao" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="ClienteId" class="form-label">Cliente</label>
+                <select asp-for="ClienteId" class="form-control">
+                    @foreach (var p in ViewBag.Clientes)
+                    {
+                        <option value="@p.Id" selected="@(p.Id == Model.ClienteId)">
+                            @p.Nome
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VeiculoId" class="form-label">Veículo</label>
+                <select asp-for="VeiculoId" class="form-control">
+                    @foreach (var v in ViewBag.Veiculos)
+                    {
+                        if (v.IsAvailable || v.Id == Model.VeiculoId)
+                        {
+                            <option value="@v.Id" selected="@(v.Id == Model.VeiculoId)">
+                                @v.Modelo
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@v.Id" disabled>
+                                @v.Modelo
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DataRetirada"></label>
+                <input asp-for="DataRetirada" type="datetime-local" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DataDevolucao"></label>
+                <input asp-for="DataDevolucao" type="datetime-local" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+        </form>
+    </div>
+</div>

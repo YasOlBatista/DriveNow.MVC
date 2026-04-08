@@ -1,13 +1,14 @@
 ﻿@model DriveNow.MVC.Models.VeiculoView
 
-<h1>Criar Veículo</h1>
+<h1>Editar Veículo</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CriarVeiculo" method="post">
+        <form asp-action="EditarVeiculo" method="post">
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
 
             <div class="mb-3">
                 <label asp-for="Modelo" class="form-label"></label>
@@ -26,12 +27,14 @@
                 <input asp-for="ValorDiaria" class="form-control" />
                 <span asp-validation-for="ValorDiaria" class="text-danger"></span>
             </div>
+
             <div class="mb-3">
                 <label asp-for="AgenciaId" class="form-label"></label>
 
-                <select asp-for="AgenciaId" class="form-control" >
+                <select asp-for="AgenciaId" class="form-control">
                     <option value="">Selecione uma agência...</option>
-                    @foreach (AgenciaView a in ViewBag.Agencias){
+                    @foreach (AgenciaView a in ViewBag.Agencias)
+                    {
                         <option value="@a.Id">@a.NomeFantasia</option>
                     }
                 </select>
@@ -39,7 +42,7 @@
                 <span asp-validation-for="AgenciaId" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button type="submit" class="btn btn-primary">Atualizar</button>
             <a asp-action="Index" class="btn btn-secondary">Voltar</a>
 
         </form>
