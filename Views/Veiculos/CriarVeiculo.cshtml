@@ -1,11 +1,12 @@
 ﻿@model DriveNow.MVC.Models.VeiculoView
+@using DriveNow.MVC.Models
 
 <h1>Criar Veículo</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CriarVeiculo" method="post">
+        <form asp-action="CriarVeiculo" method="post" enctype="multipart/form-data">
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -26,17 +27,27 @@
                 <input asp-for="ValorDiaria" class="form-control" />
                 <span asp-validation-for="ValorDiaria" class="text-danger"></span>
             </div>
+
             <div class="mb-3">
                 <label asp-for="AgenciaId" class="form-label"></label>
 
-                <select asp-for="AgenciaId" class="form-control" >
-                    <option value="">Selecione uma agência...</option>
-                    @foreach (AgenciaView a in ViewBag.Agencias){
+                <select asp-for="AgenciaId" class="form-control">
+                    <option value="">Selecione uma agência</option>
+                    @foreach (AgenciaView a in ViewBag.Agencias)
+                    {
                         <option value="@a.Id">@a.NomeFantasia</option>
                     }
                 </select>
 
                 <span asp-validation-for="AgenciaId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FotoUpload" class="form-label"></label>
+                <input asp-for="FotoUpload"
+                       type="file"
+                       class="form-control"
+                       accept="image/*" />
             </div>
 
             <button type="submit" class="btn btn-primary">Salvar</button>

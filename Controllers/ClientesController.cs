@@ -9,12 +9,15 @@ namespace DriveNow.MVC.Controllers
     public class ClientesController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly IWebHostEnvironment _webHost;
 
-        public ClientesController(IHttpClientFactory httpClientFactory)
+        public ClientesController(
+            IHttpClientFactory httpClientFactory,
+            IWebHostEnvironment webHost)
         {
             _httpClient = httpClientFactory.CreateClient("DriveNowAPI");
+            _webHost = webHost;
         }
-
 
         public async Task<IActionResult> Index()
         {
@@ -32,19 +35,48 @@ namespace DriveNow.MVC.Controllers
             return View(new List<ClienteView>());
         }
 
-
         public IActionResult CriarCliente()
         {
             return View();
         }
-
-
 
         [HttpPost]
         public async Task<IActionResult> CriarCliente(ClienteView cliente)
         {
             if (!ModelState.IsValid)
                 return View(cliente);
+
+            if (cliente.FotoUpload != null)
+            {
+                string pastaImagens = Path.Combine(
+                    _webHost.WebRootPath,
+                    "imagens",
+                    "clientes"
+                );
+
+                if (!Directory.Exists(pastaImagens))
+                    Directory.CreateDirectory(pastaImagens);
+
+                string extensao = Path.GetExtension(cliente.FotoUpload.FileName);
+
+                string nomeArquivo =
+                    Guid.NewGuid().ToString() + extensao;
+
+                string caminhoCompleto = Path.Combine(
+                    pastaImagens,
+                    nomeArquivo
+                );
+
+                using (var stream = new FileStream(
+                    caminhoCompleto,
+                    FileMode.Create))
+                {
+                    await cliente.FotoUpload.CopyToAsync(stream);
+                }
+
+                cliente.FotoUrl =
+                    "/imagens/clientes/" + nomeArquivo;
+            }
 
             var json = JsonSerializer.Serialize(cliente);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -60,10 +92,10 @@ namespace DriveNow.MVC.Controllers
             return View(cliente);
         }
 
-
         public async Task<IActionResult> DeletarCliente(int id)
         {
             var resposta = await _httpClient.GetAsync($"api/clientes/{id}");
+
             if (resposta.IsSuccessStatusCode)
             {
                 var json = await resposta.Content.ReadAsStringAsync();
@@ -80,6 +112,7 @@ namespace DriveNow.MVC.Controllers
         public async Task<IActionResult> Deletar(int id)
         {
             var resposta = await _httpClient.DeleteAsync($"api/clientes/{id}");
+
             if (resposta.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
@@ -91,6 +124,7 @@ namespace DriveNow.MVC.Controllers
         public async Task<IActionResult> EditarCliente(int id)
         {
             var resposta = await _httpClient.GetAsync($"api/clientes/{id}");
+
             if (resposta.IsSuccessStatusCode)
             {
                 var json = await resposta.Content.ReadAsStringAsync();
@@ -108,6 +142,38 @@ namespace DriveNow.MVC.Controllers
         {
             if (id != c.Id) return BadRequest();
             if (!ModelState.IsValid) return View(c);
+
+            if (c.FotoUpload != null)
+            {
+                string pastaImagens = Path.Combine(
+                    _webHost.WebRootPath,
+                    "imagens",
+                    "clientes"
+                );
+
+                if (!Directory.Exists(pastaImagens))
+                    Directory.CreateDirectory(pastaImagens);
+
+                string extensao = Path.GetExtension(c.FotoUpload.FileName);
+
+                string nomeArquivo =
+                    Guid.NewGuid().ToString() + extensao;
+
+                string caminhoCompleto = Path.Combine(
+                    pastaImagens,
+                    nomeArquivo
+                );
+
+                using (var stream = new FileStream(
+                    caminhoCompleto,
+                    FileMode.Create))
+                {
+                    await c.FotoUpload.CopyToAsync(stream);
+                }
+
+                c.FotoUrl =
+                    "/imagens/clientes/" + nomeArquivo;
+            }
 
             var content = new StringContent(
                 JsonSerializer.Serialize(c),

@@ -1,82 +1,129 @@
 ﻿using DriveNow.MVC.Models;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace DriveNow.MVC.Controllers
 {
     public class VeiculosController : Controller
     {
-        private readonly HttpClient _apiClient;
-        private readonly JsonSerializerOptions _jsonOptions;
+        private readonly HttpClient _httpClient;
+        private readonly IWebHostEnvironment _webHost;
 
-        public VeiculosController(IHttpClientFactory httpClientFactory)
+        public VeiculosController(
+            IHttpClientFactory httpClientFactory,
+            IWebHostEnvironment webHost)
         {
-            _apiClient = httpClientFactory.CreateClient("DriveNowAPI");
-            _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            _httpClient = httpClientFactory.CreateClient("DriveNowAPI");
+            _webHost = webHost;
         }
+
         public async Task<IActionResult> Index()
         {
-            var res = await _apiClient.GetAsync("api/Veiculos");
-            if (!res.IsSuccessStatusCode)
+            var response = await _httpClient.GetAsync("api/veiculos");
+
+            if (response.IsSuccessStatusCode)
             {
-                return View(new List<VeiculoView>());
+                var json = await response.Content.ReadAsStringAsync();
+
+                var veiculos = JsonSerializer.Deserialize<List<VeiculoView>>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                return View(veiculos);
             }
-            var json = await res.Content.ReadAsStringAsync();
-            var veiculos = JsonSerializer.Deserialize<List<VeiculoView>>(json, _jsonOptions);
 
-            return View(veiculos);
-
+            return View(new List<VeiculoView>());
         }
 
-        public async Task<IActionResult> CriarVeiculo()
+        public IActionResult CriarVeiculo()
         {
-            var res = await _apiClient.GetAsync("Agencias");
-            if (!res.IsSuccessStatusCode)
-            {
-                return NotFound("Erro ao conectar-se a API");
-            }
-            var json = await res.Content.ReadAsStringAsync();
-            var agencias = JsonSerializer.Deserialize<List<AgenciaView>>(json, _jsonOptions);
-            ViewBag.Agencias = agencias;
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CriarVeiculo(VeiculoView v)
+        public async Task<IActionResult> CriarVeiculo(VeiculoView veiculo)
         {
             if (!ModelState.IsValid)
+                return View(veiculo);
+
+            if (veiculo.FotoUpload != null)
             {
-                return View(v);
+                string pastaImagens = Path.Combine(
+                    _webHost.WebRootPath,
+                    "imagens",
+                    "veiculos"
+                );
+
+                if (!Directory.Exists(pastaImagens))
+                    Directory.CreateDirectory(pastaImagens);
+
+                string extensao = Path.GetExtension(
+                    veiculo.FotoUpload.FileName
+                );
+
+                string nomeArquivo =
+                    Guid.NewGuid().ToString() + extensao;
+
+                string caminhoCompleto = Path.Combine(
+                    pastaImagens,
+                    nomeArquivo
+                );
+
+                using (var stream = new FileStream(
+                    caminhoCompleto,
+                    FileMode.Create))
+                {
+                    await veiculo.FotoUpload.CopyToAsync(stream);
+                }
+
+                veiculo.FotoUrl =
+                    "/imagens/veiculos/" + nomeArquivo;
             }
 
+            var json = JsonSerializer.Serialize(veiculo);
+
             var content = new StringContent(
-                JsonSerializer.Serialize(v),
+                json,
                 Encoding.UTF8,
                 "application/json"
             );
 
-            var resp = await _apiClient.PostAsync("api/Veiculos", content);
+            var response = await _httpClient.PostAsync(
+                "api/veiculos",
+                content
+            );
 
-            if (resp.IsSuccessStatusCode) return RedirectToAction("Index");
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
 
-            ModelState.AddModelError("", "Erro ao cadastrar o veículo");
+            ModelState.AddModelError("", "Erro ao criar veículo");
 
-            return View(v);
+            return View(veiculo);
         }
-
 
         public async Task<IActionResult> DeletarVeiculo(int id)
         {
-            var resposta = await _apiClient.GetAsync($"api/veiculos/{id}");
+            var resposta = await _httpClient.GetAsync(
+                $"api/veiculos/{id}"
+            );
+
             if (resposta.IsSuccessStatusCode)
             {
                 var json = await resposta.Content.ReadAsStringAsync();
-                var veiculo = JsonSerializer.Deserialize<VeiculoView>(json,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                var veiculo = JsonSerializer.Deserialize<VeiculoView>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
 
                 return View(veiculo);
             }
@@ -85,63 +132,86 @@ namespace DriveNow.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeletarVeiculoConfirmado(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
-            var resposta = await _apiClient.DeleteAsync($"api/veiculos/{id}");
+            var resposta = await _httpClient.DeleteAsync(
+                $"api/veiculos/{id}"
+            );
+
             if (resposta.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
             }
 
-            return RedirectToAction(nameof(DeletarVeiculo), new { id });
+            return RedirectToAction(
+                nameof(DeletarVeiculo),
+                new { id });
         }
 
         public async Task<IActionResult> EditarVeiculo(int id)
         {
-            var resposta = await _apiClient.GetAsync($"api/veiculos/{id}");
+            var resposta = await _httpClient.GetAsync(
+                $"api/veiculos/{id}"
+            );
 
-            if (!resposta.IsSuccessStatusCode) return NotFound();
-
-            var json = await resposta.Content.ReadAsStringAsync();
-            var veiculo = JsonSerializer.Deserialize<VeiculoView>(json, new JsonSerializerOptions());
-
-            var responseAgencias = await _apiClient.GetAsync("api/Agencias");
-
-            if (responseAgencias.IsSuccessStatusCode)
+            if (resposta.IsSuccessStatusCode)
             {
-                var jsonAgencias = await responseAgencias.Content.ReadAsStringAsync();
-                var agencias = JsonSerializer.Deserialize<List<AgenciaView>>(jsonAgencias, _jsonOptions);
+                var json = await resposta.Content.ReadAsStringAsync();
 
-                ViewBag.Agencias = new SelectList(agencias, "Id", "Nome");
-            }
-            else
-            {
-                ViewBag.Agencias = new SelectList(new List<AgenciaView>(), "Id", "Nome");
+                var veiculo = JsonSerializer.Deserialize<VeiculoView>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                return View(veiculo);
             }
 
-            return View(veiculo);
+            return NotFound();
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditarVeiculo(VeiculoView v, int id)
+        public async Task<IActionResult> EditarVeiculo(
+            VeiculoView v,
+            int id)
         {
             if (id != v.Id) return BadRequest();
-
-            var responseAgencias = await _apiClient.GetAsync("api/Agencias");
-
-            if (responseAgencias.IsSuccessStatusCode)
-            {
-                var jsonAgencias = await responseAgencias.Content.ReadAsStringAsync();
-                var agencias = JsonSerializer.Deserialize<List<AgenciaView>>(jsonAgencias, _jsonOptions);
-
-                ViewBag.Agencias = new SelectList(agencias, "Id", "Nome");
-            }
-            else
-            {
-                ViewBag.Agencias = new SelectList(new List<AgenciaView>(), "Id", "Nome");
-            }
-
             if (!ModelState.IsValid) return View(v);
+
+            if (v.FotoUpload != null)
+            {
+                string pastaImagens = Path.Combine(
+                    _webHost.WebRootPath,
+                    "imagens",
+                    "veiculos"
+                );
+
+                if (!Directory.Exists(pastaImagens))
+                    Directory.CreateDirectory(pastaImagens);
+
+                string extensao = Path.GetExtension(
+                    v.FotoUpload.FileName
+                );
+
+                string nomeArquivo =
+                    Guid.NewGuid().ToString() + extensao;
+
+                string caminhoCompleto = Path.Combine(
+                    pastaImagens,
+                    nomeArquivo
+                );
+
+                using (var stream = new FileStream(
+                    caminhoCompleto,
+                    FileMode.Create))
+                {
+                    await v.FotoUpload.CopyToAsync(stream);
+                }
+
+                v.FotoUrl =
+                    "/imagens/veiculos/" + nomeArquivo;
+            }
 
             var content = new StringContent(
                 JsonSerializer.Serialize(v),
@@ -149,7 +219,10 @@ namespace DriveNow.MVC.Controllers
                 "application/json"
             );
 
-            var resp = await _apiClient.PutAsync($"api/veiculos/{id}", content);
+            var resp = await _httpClient.PutAsync(
+                $"api/veiculos/{id}",
+                content
+            );
 
             if (resp.IsSuccessStatusCode)
                 return RedirectToAction("Index");
@@ -158,5 +231,5 @@ namespace DriveNow.MVC.Controllers
 
             return View(v);
         }
-    } 
+    }
 }
